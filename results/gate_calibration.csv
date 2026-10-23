@@ -1,0 +1,5 @@
+gate,threshold,ap,gmac,early_exit_pct
+mean,0.40,0.2565,27.447,11.50
+weighted_mean,0.40,0.2550,27.240,14.08
+median,0.35,0.2532,27.235,14.16
+minimum,0.25,0.2572,27.633,9.18

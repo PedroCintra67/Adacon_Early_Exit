@@ -46,7 +46,7 @@ def validate():
     assert all(float(a["early_exit_pct"]) > float(b["early_exit_pct"])
                for a, b in zip(thresholds, thresholds[1:]))
     assert len(read_rows("gate_calibration.csv")) == 4
-    print("Tabelas consistentes com os valores conferidos da apresentação.")
+    print("Tabelas e indicadores consistentes com os dados do repositório.")
 
 
 if __name__ == "__main__":

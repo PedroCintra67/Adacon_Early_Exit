@@ -1,4 +1,4 @@
 branches,ap_baseline,gmac_baseline,ap_early_exit,gmac_early_exit,early_exit_pct,layer,gate,threshold
-2,0.2546,28.039,0.2491,27.187,14.00,61,weighted_mean,0.40
-3,0.2331,27.169,0.2278,25.952,20.94,61,weighted_mean,0.35
-4,0.2268,26.735,0.2217,25.610,20.94,61,weighted_mean,0.35
+2,0.2546,28.039,0.2491,27.187,14.00,58,weighted_mean,0.40
+3,0.2331,27.169,0.2278,25.952,20.94,58,weighted_mean,0.35
+4,0.2268,26.735,0.2217,25.610,20.94,58,weighted_mean,0.35

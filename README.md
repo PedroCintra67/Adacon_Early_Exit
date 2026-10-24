@@ -76,10 +76,10 @@ A configuração **2B** apresentou a maior precisão entre as bases avaliadas e 
 | 49 | 0,0968 | **16,879** | 0,0057 |
 | 52 | 0,1061 | 17,765 | 0,0060 |
 | 55 | 0,1184 | 18,651 | 0,0063 |
-| 58 | 0,1333 | 19,537 | 0,0068 |
-| **61** | **0,1504** | 20,423 | **0,0074** |
+| **58** | 0,1333 | 19,537 | 0,0068 |
+| 61 | **0,1504** | 20,423 | **0,0074** |
 
-A **camada 61** apresentou o maior AP e a melhor relação AP/GMAC entre as posições estudadas. As camadas anteriores exigiram menos operações, mas perderam mais qualidade de detecção.
+A **camada 58** foi adotada nas configurações finais. Na comparação das posições testadas, a camada 61 obteve AP maior, mas também exigiu mais processamento.
 
 ### Como calcular a confiança da saída? (calibração)
 
@@ -94,7 +94,7 @@ A escolha foi **média ponderada com `τ = 0,40`**, preservando **97,24% do AP**
 
 ### Como o limiar afeta precisão e processamento? (calibração)
 
-Configuração **2B**, média ponderada, camada 61:
+Configuração **2B**, média ponderada, camada 58:
 
 | `τ` | COCO AP | GMAC | % EE | AP preservado | AP/GMAC |
 |--:|--:|--:|--:|--:|--:|
@@ -107,8 +107,6 @@ Configuração **2B**, média ponderada, camada 61:
 
 Quanto menor o limiar, mais imagens encerram o processamento cedo. Isso reduz o custo, mas aumenta o risco de perda de AP. A escolha depende do equilíbrio desejado entre velocidade e precisão.
 
-![Efeito do limiar na calibração](figures/threshold_tradeoff.svg)
-
 ### Impacto das saídas antecipadas (validação)
 
 | Modelo | AP AdaCon | AP com EE | AP preservado | GMAC AdaCon | GMAC com EE | Redução | % EE |
@@ -119,9 +117,7 @@ Quanto menor o limiar, mais imagens encerram o processamento cedo. Isso reduz o 
 
 Em todos os modelos, foi utilizada **média ponderada**. O limiar foi **0,40 no 2B** e **0,35 nos modelos 3B e 4B**.
 
-A configuração **2B + saída na camada 61 + média ponderada + `τ = 0,40`** teve o maior AP final. Ela reduziu **0,852 GMAC por imagem (3,04%)**, preservando **97,83% do AP**. O **3B** teve a maior redução relativa de GMAC; o **4B**, o menor GMAC absoluto. Assim, diferentes versões fazem sentido dependendo do objetivo da aplicação.
-
-![AdaCon original e AdaCon com saída antecipada](figures/model_comparison.svg)
+A configuração **2B + saída na camada 58 + média ponderada + `τ = 0,40`** teve o maior AP final. Ela reduziu **0,852 GMAC por imagem (3,04%)**, preservando **97,83% do AP**. O **3B** teve a maior redução relativa de GMAC; o **4B**, o menor GMAC absoluto. Assim, diferentes versões fazem sentido dependendo do objetivo da aplicação.
 
 **Nota sobre os percentuais:** os valores de AP preservado são os publicados nos slides. Como o AP mostrado está arredondado para quatro casas, recalcular a razão a partir dessa tabela pode produzir diferença de aproximadamente 0,01 ponto percentual.
 
@@ -176,7 +172,7 @@ Execute o gerador para comparar **o AP e o GMAC antes e depois das saídas antec
 python scripts/plot_results.py
 ```
 
-Os dois gráficos são salvos em `figures/model_comparison.svg` e `figures/threshold_tradeoff.svg`. Eles podem ser abertos no navegador ou visualizados no GitHub.
+Os dois gráficos são gerados localmente em `figures/model_comparison.svg` e `figures/threshold_tradeoff.svg`. Eles não são incluídos no repositório.
 
 Para consultar os **valores completos** utilizados nesses comandos, os arquivos em `results/` estão separados por assunto:
 
@@ -226,9 +222,8 @@ O código em `baseline/` corresponde à arquitetura original da literatura, com 
 Adacon_Early_Exit/
 ├── baseline/adacon/    # código original AdaCon e configurações
 ├── docs/               # apresentação SIAC e procedência
-├── figures/            # visualizações dos dados
 ├── results/            # resultados em CSV
-├── scripts/            # validação e gráficos
+├── scripts/            # validação e geração local de gráficos
 ├── .gitignore
 ├── LICENSE
 └── README.md

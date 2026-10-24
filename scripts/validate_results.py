@@ -26,7 +26,7 @@ def validate():
         assert 0 < ap_after <= ap_before < 1
         assert 0 < cost_after < cost_before
         assert 0 < float(row["early_exit_pct"]) < 100
-        assert int(row["layer"]) == 61
+        assert int(row["layer"]) == 58
 
         reduction = 100 * (1 - cost_after / cost_before)
         retained = 100 * ap_after / ap_before

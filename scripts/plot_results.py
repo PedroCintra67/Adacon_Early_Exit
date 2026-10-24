@@ -56,7 +56,7 @@ def comparison_chart():
 def tradeoff_chart():
     rows = read_rows("threshold_calibration.csv")
     parts = [text(35, 44, "Calibração do limiar de saída", 25, weight="bold"),
-             text(35, 70, "AdaCon 2B · camada 61 · média ponderada", 14, color="#617386")]
+             text(35, 70, "AdaCon 2B · camada 58 · média ponderada", 14, color="#617386")]
     x_left, x_right, y_top, y_bottom = 100, 800, 120, 410
     for index in range(6):
         x = x_left + index * (x_right - x_left) / 5

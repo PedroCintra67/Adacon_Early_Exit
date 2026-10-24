@@ -7,9 +7,11 @@ Este repositório reúne materiais de um estudo sobre a integração de saídas 
 - `apresentacao_siac_2026.pptx`: apresentação final usada como fonte dos valores publicados aqui.
 - `../results/*.csv`: transcrição das tabelas da apresentação (modelos 2B, 3B e 4B; varredura de camadas; calibração de limiar e método).
 - `../scripts/*.py`: ferramentas pequenas para conferir e visualizar as tabelas.
-- `../figures/*.svg`: gráficos derivados dos CSVs.
+- `../figures/*.svg`: gráficos gerados localmente a partir dos CSVs, fora do versionamento.
 
 As tabelas **não são novas execuções** nem foram calculadas a partir de checkpoints nesta preparação. As tabelas de calibração e validação são provenientes de etapas diferentes do experimento e não devem ser combinadas como se fossem a mesma medição.
+
+Após revisão do projeto, a camada utilizada na configuração final foi corrigida de 61 para **58** em `model_comparison.csv`, no README e nos scripts de apoio. A camada 61 permanece em `layer_search.csv` como posição avaliada, com seus valores originais.
 
 ## Código de terceiros
 

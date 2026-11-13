@@ -16,6 +16,7 @@ def read_rows(filename):
 def validate():
     rows = read_rows("model_comparison.csv")
     assert [int(row["branches"]) for row in rows] == [2, 3, 4]
+    assert int(rows[0]["layer"]) == 58
 
     reductions = []
     for row in rows:
@@ -26,7 +27,6 @@ def validate():
         assert 0 < ap_after <= ap_before < 1
         assert 0 < cost_after < cost_before
         assert 0 < float(row["early_exit_pct"]) < 100
-        assert int(row["layer"]) == 58
 
         reduction = 100 * (1 - cost_after / cost_before)
         retained = 100 * ap_after / ap_before
@@ -40,6 +40,7 @@ def validate():
     layers = read_rows("layer_search.csv")
     assert [int(row["layer"]) for row in layers] == [49, 52, 55, 58, 61]
     assert all(float(row["gmac"]) > 0 for row in layers)
+    assert max(layers, key=lambda row: float(row["ap"]) / float(row["gmac"]))["layer"] == "58"
 
     thresholds = read_rows("threshold_calibration.csv")
     assert len(thresholds) == 6

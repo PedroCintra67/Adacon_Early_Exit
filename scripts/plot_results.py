@@ -49,7 +49,7 @@ def comparison_chart():
                 parts.append(text(x0 + 42 + bar_width, y + offset + 15, display, 12))
         parts.append(text(x0 + 36, 493, "Base", 13, color="#687f98"))
         parts.append(text(x0 + 106, 493, "Early Exit", 13, color="#007f77"))
-    parts.append(text(36, 532, "Fonte: apresentação final do estudo (SIAC/UFRJ, 2026).", 12, color="#617386"))
+    parts.append(text(36, 532, "Fonte: SIAC 2026 revisado (2B) e versão anterior (3B/4B).", 12, color="#617386"))
     return svg_document(1000, 552, parts)
 
 
@@ -58,19 +58,20 @@ def tradeoff_chart():
     parts = [text(35, 44, "Calibração do limiar de saída", 25, weight="bold"),
              text(35, 70, "AdaCon 2B · camada 58 · média ponderada", 14, color="#617386")]
     x_left, x_right, y_top, y_bottom = 100, 800, 120, 410
-    for index in range(6):
-        x = x_left + index * (x_right - x_left) / 5
+    xs = [x_left + index * (x_right - x_left) / (len(rows) - 1)
+          for index in range(len(rows))]
+    for x, row in zip(xs, rows):
         parts.append(f'<line x1="{x}" y1="{y_top}" x2="{x}" y2="{y_bottom}" stroke="#e9edf1"/>')
-        parts.append(text(x, 440, rows[index]["threshold"], 13, anchor="middle"))
+        parts.append(text(x, 440, row["threshold"], 13, anchor="middle"))
     for value in (0, 20, 40, 60, 80, 100):
         y = y_bottom - (value / 100) * (y_bottom - y_top)
         parts.append(f'<line x1="{x_left}" y1="{y}" x2="{x_right}" y2="{y}" stroke="#e9edf1"/>')
         parts.append(text(x_left - 14, y + 4, f"{value}%", 12, anchor="end"))
 
     def points(column):
-        return [(x_left + index * (x_right - x_left) / 5,
+        return [(x,
                  y_bottom - float(row[column]) / 100 * (y_bottom - y_top))
-                for index, row in enumerate(rows)]
+                for x, row in zip(xs, rows)]
 
     for column, color, legend in [("ap_retained_pct", "#183c71", "AP preservado"),
                                   ("early_exit_pct", "#007f77", "Saídas antecipadas")]:

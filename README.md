@@ -58,8 +58,8 @@ O fluxo é implementado principalmente por `adacon_model.py`, `models.py` e `det
 | Modo | Como funciona | Onde usar |
 |---|---|---|
 | Multirramos | Ativa grupos acima do limiar do controlador | `detect.py` e `test.py` com `--adaptive` |
-| Ramo único | Executa apenas o grupo de maior resposta | `detect.py --single` ou `test.py --single` |
-| Oráculo | Executa todos os ramos como referência | `test.py --oracle` |
+| Ramo único | Executa apenas o grupo de maior resposta | `detect.py --adaptive --single` ou `test.py --adaptive --single` |
+| Oráculo | Seleciona ramos com base nas classes reais da imagem | `test.py --adaptive --oracle` |
 
 ## 🗂️ Dataset: COCO 2017
 
@@ -79,21 +79,25 @@ Dataset e anotações: [COCO](https://cocodataset.org/#download).
 
 ## 📊 Resultados experimentais registrados
 
-O estudo usou COCO 2017 com 113.287 imagens de treinamento, 5.000 de calibração e 5.000 de validação, processadas em 416 × 416 pixels. Foram comparadas bases AdaCon com dois, três e quatro ramos e saídas intermediárias nas camadas 49, 52, 55, 58 e 61.
+O estudo usou COCO 2017 com 113.287 imagens de treinamento, 5.000 de calibração e 5.000 de validação, processadas em 416 × 416 pixels. A [apresentação revisada do SIAC 2026 (PDF)](docs/apresentacao_siac_2026.pdf) é a fonte principal desta seção. As métricas são **COCO AP (AP50:95)**, **GMAC por imagem**, taxa de saída antecipada e AP preservado. Os CSVs são transcrições das medições apresentadas, e não uma nova execução dos experimentos.
 
-As métricas são **COCO AP (AP50:95)**, **GMAC por imagem**, taxa de saída antecipada e AP preservado. Os CSVs em `results/` são uma transcrição das medições do estudo, e não uma nova execução produzida pelos scripts deste repositório. Calibração e validação são etapas distintas.
+A avaliação seguiu uma sequência de escolhas:
 
-Na comparação final, a saída antecipada foi registrada na camada 58 com média ponderada como critério de confiança. O limiar foi `0,40` para 2B e `0,35` para 3B e 4B.
+1. **Arquitetura-base:** comparar AdaCon com dois, três e quatro ramos. A versão 2B foi escolhida por apresentar maior AP (0,2546) e maior razão AP/GMAC (0,009081) entre as três.
+2. **Posição da saída antecipada:** avaliar as camadas 49, 52, 55, 58 e 61 do *backbone*. A camada **58** foi escolhida pelo equilíbrio entre precisão e custo (AP 0,1333; 19,547 GMAC; AP/GMAC reportado de 0,0068). A camada 61 teve AP maior, mas razão AP/GMAC menor.
+3. **Critério de decisão:** comparar média, média ponderada, mediana e mínimo. A escolha foi a **média ponderada**, com limiar `τ = 0,40` na calibração.
+4. **Validação final:** comparar AdaCon 2B e AdaCon 2B com saída antecipada na camada 58, usando média ponderada e `τ = 0,40`.
 
-| Configuração | AP AdaCon | AP com saída antecipada | Redução de GMAC | Saídas antecipadas |
-|---|---:|---:|---:|---:|
-| 2B | 0,2546 | 0,2491 | 3,04% | 14,00% |
-| 3B | 0,2331 | 0,2278 | 4,48% | 20,94% |
-| 4B | 0,2268 | 0,2217 | 4,21% | 20,94% |
+| Configuração na validação final | COCO AP | GMAC/imagem | Saídas antecipadas | AP preservado | Redução de GMAC |
+|---|---:|---:|---:|---:|---:|
+| AdaCon 2B | 0,2546 | 28,039 | 0,00% | 100,00% | 0,00% |
+| AdaCon 2B + EE (camada 58) | 0,2491 | 27,187 | 14,00% | 97,83% | 3,04% |
 
-Os dados indicam redução de custo com retenção próxima de 98% do AP nas três configurações. A configuração 2B teve o maior AP final; 3B apresentou a maior redução relativa de GMAC; e 4B teve o menor GMAC absoluto entre os casos comparados.
+O estudo também avaliou grupos de classes por coocorrência: 2B separa ambientes externo e interno (49 e 47 classes por ramo); 3B divide animais/esporte, rua e ambiente interno (40, 25 e 47); 4B divide animais/esporte, rua, sala e cozinha (40, 25, 23 e 40). Uma classe pode pertencer a mais de um ramo.
 
-Para explorar a escolha de camadas, métodos de decisão e limiares, consulte `layer_search.csv`, `gate_calibration.csv` e `threshold_calibration.csv`. A [apresentação do estudo](docs/apresentacao_siac_2026.pptx) é a fonte dos valores transcritos.
+As tabelas de calibração (`threshold_calibration.csv` e `gate_calibration.csv`) pertencem a uma etapa diferente da validação final. Em particular, os valores de AP da calibração devem ser interpretados no contexto dessa etapa.
+
+O arquivo `model_comparison.csv` preserva também registros anteriores de EE para 3B e 4B, provenientes da [apresentação anterior (PPTX)](docs/apresentacao_siac_2026_anterior.pptx). Esses resultados não aparecem na versão revisada em PDF e precisam de confirmação independente, inclusive quanto à camada indicada para eles. A comparação final confirmada pela apresentação revisada é a de **2B**. Para explorar as demais medições, consulte [`layer_search.csv`](results/layer_search.csv), [`gate_calibration.csv`](results/gate_calibration.csv) e [`threshold_calibration.csv`](results/threshold_calibration.csv).
 
 ## 🛠️ Ferramentas e tecnologias
 
@@ -179,7 +183,7 @@ Com COCO e pesos preparados, avalie a configuração adaptativa com:
 python test.py --adaptive --model model.args --data data/coco2017.data --img-size 416
 ```
 
-Com `--adaptive --single`, o teste avalia o ramo mais provável; com `--adaptive --oracle`, executa todos os ramos como referência. O script também oferece `--profile`.
+Com `--adaptive --single`, o teste avalia o ramo mais provável; com `--adaptive --oracle`, usa as classes verdadeiras da imagem para selecionar os ramos relevantes (com fallback para o ramo 0 quando nenhum for selecionado). O script também oferece `--profile`.
 
 `train.py` expõe treinamento separado para o controlador e para cada ramo. Na configuração incluída, `--cluster_idx` aceita índices de `0` a `3`:
 
